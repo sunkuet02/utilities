@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-folder = "/media/sun/A4FE1C5EFE1C2AD6/EJBCA/tigerca-6.2.0"
+folder = "/media/sun/Desktop/utilities/temp"
 
 import os # glob is unnecessary
 
-replaceFrom = 'ejbca'
-replaceWith = 'tigerca'
+replaceFrom = 'from'
+replaceWith = 'with'
 
 for root, dirs,filenames in os.walk(folder):
     for filename in filenames:
