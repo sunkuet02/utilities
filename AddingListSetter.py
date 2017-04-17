@@ -3,14 +3,15 @@ import re
 try:
     from tkinter import *
     from tkinter import messagebox
-    tkInterPresent = True
+    tkinter_present = True
 except ImportError:
-    tkInterPresent = False
+    tkinter_present = False
 import logging
 logging.basicConfig(level=logging.INFO,
                     format=' %(asctime)s - %(levelname)s - %(message)s')
 
 match_list_regex = r"(List<.*>) (.*);"
+affected_lines = 0
 
 
 def get_all_files_for_extension(filepath, extension):
@@ -30,7 +31,7 @@ def having_list_item(line):
 
 
 def capitalize_word(word):
-        return word[0].upper() + word[1:]
+    return word[0].upper() + word[1:]
 
 
 def print_file(file_path):
@@ -50,6 +51,8 @@ def make_setter_function(var_type, var_name):
 
 
 def read_file(file_path):
+    global affected_lines
+
     with open(file_path, "r") as in_file:
         buf = in_file.readlines()
 
@@ -58,6 +61,7 @@ def read_file(file_path):
             var_type, var_name = having_list_item(line)
             if var_name:
                 logging.info(file_path)
+                affected_lines = affected_lines + 1
                 function_in_string = make_setter_function(var_type, var_name)
                 line = line + "\n" + function_in_string
             out_file.write(line)
@@ -68,8 +72,10 @@ def generate_setter(file_path):
     for file in java_files:
         read_file(file)
 
+
 def cli():
     adding_list_setter(input("Full File Path:"))
+
 
 def gui():
     def start_population():
@@ -87,26 +93,34 @@ def gui():
     mainloop()
 
 
-def adding_list_setter(file_path, tkEnabled=False):
+def adding_list_setter(file_path, tk_enabled=False):
     if len(file_path) == 0:
         logging.error("Please Enter the valid path")
-        try:
-            if(tkEnabled):
-                messagebox.showinfo("Error", "Please Enter the valid path")
-        except:
-            pass
+        if tk_enabled:
+            messagebox.showinfo("Error", "Please Enter the valid path")
         return
+
     logging.info(file_path)
-    if "generated-sources\jax-ws" not in file_path and "generated-sources/jax-ws" not in file_path :
-        option = input("You are not in generated sources, possibly sources may change. Do you want to continue (y/n): ")
-        if option == "y":
-            generate_setter(file_path)
+    global affected_lines
+    affected_lines = 0
+
+    if "generated-sources\jax-ws" not in file_path and "generated-sources/jax-ws" not in file_path:
+        if tk_enabled:
+            result = messagebox.askquestion("Delete", "Are You Sure?", icon='warning')
+            if result == 'yes':
+                generate_setter(file_path)
+        else:
+            option = input("You are not in generated sources, possibly sources may change."
+                           " Do you want to continue (y/n): ")
+            if option == "y":
+                generate_setter(file_path)
     else:
         generate_setter(file_path)
 
+    messagebox.showinfo("Message", "Done. {} lines are affected.".format(affected_lines))
 
 if __name__ == "__main__":
-    if(tkInterPresent):
+    if tkinter_present:
         gui()
-    else: 
+    else:
         cli()
