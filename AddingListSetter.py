@@ -76,13 +76,12 @@ def generate_setter(file_path):
 
 
 def cli():
-    tkinter_present = False
     adding_list_setter(input("Full File Path:"))
 
 
 def gui():
     def start_population():
-        adding_list_setter(entry_path.get(), True)
+        adding_list_setter(entry_path.get())
 
     master = Tk()
     master.wm_title("Setter Generator")
@@ -96,10 +95,10 @@ def gui():
     mainloop()
 
 
-def adding_list_setter(file_path, tk_enabled=False):
+def adding_list_setter(file_path):
     if len(file_path) == 0:
         logging.error("Please Enter the valid path")
-        if tk_enabled:
+        if tkinter_present:
             messagebox.showinfo("Error", "Please Enter the valid path")
         return
 
@@ -108,7 +107,7 @@ def adding_list_setter(file_path, tk_enabled=False):
     affected_lines = 0
 
     if "generated-sources\jax-ws" not in file_path and "generated-sources/jax-ws" not in file_path:
-        if tk_enabled:
+        if tkinter_present:
             result = messagebox.askquestion("Delete", "Are You Sure?", icon='warning')
             if result == 'yes':
                 generate_setter(file_path)
@@ -121,11 +120,12 @@ def adding_list_setter(file_path, tk_enabled=False):
         generate_setter(file_path)
     msg = "Done. {} lines are affected.".format(affected_lines)
     logging.info(msg)
-    if tk_enabled:
+    if tkinter_present:
         messagebox.showinfo("Message", msg)
     
 if __name__ == "__main__":    
     if tkinter_present and len(sys.argv) > 1 and "--g" == sys.argv[1]:
         gui()
     else:
+        tkinter_present = False
         cli()
