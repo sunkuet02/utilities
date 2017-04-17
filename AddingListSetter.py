@@ -86,7 +86,7 @@ def gui():
     master = Tk()
     master.wm_title("Setter Generator")
 
-    label_input_path = Label(master, text="Enter the filepath: ").grid(row=0, sticky=W)
+    Label(master, text="Enter the filepath: ").grid(row=0, sticky=W)
     entry_path = Entry(master)
     entry_path.grid(row=0, column=1)
 
@@ -96,6 +96,8 @@ def gui():
 
 
 def adding_list_setter(file_path):
+    file_path = file_path.replace("\\", "/")
+
     if len(file_path) == 0:
         logging.error("Please Enter the valid path")
         if tkinter_present:
@@ -118,13 +120,21 @@ def adding_list_setter(file_path):
                 generate_setter(file_path)
     else:
         generate_setter(file_path)
+
     msg = "Done. {} lines are affected.".format(affected_lines)
+
     logging.info(msg)
     if tkinter_present:
         messagebox.showinfo("Message", msg)
-    
-if __name__ == "__main__":    
-    if tkinter_present and len(sys.argv) > 1 and "--g" == sys.argv[1]:
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "-a":
+        if len(sys.argv) > 2:
+            adding_list_setter(sys.argv[2])
+        else:
+            cli()
+    elif tkinter_present and (len(sys.argv) == 1 or sys.argv[1]=="-g"):
         gui()
     else:
         tkinter_present = False
