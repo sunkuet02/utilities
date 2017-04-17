@@ -3,8 +3,9 @@ import re
 try:
     from tkinter import *
     from tkinter import messagebox
+    tkInterPresent = True
 except ImportError:
-    pass
+    tkInterPresent = False
 import logging
 logging.basicConfig(level=logging.INFO,
                     format=' %(asctime)s - %(levelname)s - %(message)s')
@@ -105,4 +106,7 @@ def adding_list_setter(file_path, tkEnabled=False):
 
 
 if __name__ == "__main__":
-    cli()
+    if(tkInterPresent):
+        gui()
+    else: 
+        cli()
