@@ -1,7 +1,14 @@
 import os
 import re
-from tkinter import *
-from tkinter import messagebox
+try:
+    from tkinter import *
+    from tkinter import messagebox
+    tkInterPresent = True
+except ImportError:
+    tkInterPresent = False
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format=' %(asctime)s - %(levelname)s - %(message)s')
 
 match_list_regex = r"(List<.*>) (.*);"
 
@@ -31,7 +38,7 @@ def print_file(file_path):
         lines = f.read().splitlines()
         for line in lines:
             if having_list_item(line):
-                print(line)
+                logging.info(line)
 
 
 def make_setter_function(var_type, var_name):
@@ -50,7 +57,7 @@ def read_file(file_path):
         for line in buf:
             var_type, var_name = having_list_item(line)
             if var_name:
-                print(file_path)
+                logging.info(file_path)
                 function_in_string = make_setter_function(var_type, var_name)
                 line = line + "\n" + function_in_string
             out_file.write(line)
@@ -61,10 +68,12 @@ def generate_setter(file_path):
     for file in java_files:
         read_file(file)
 
+def cli():
+    adding_list_setter(input("Full File Path:"))
 
 def gui():
     def start_population():
-        adding_list_setter(entry_path.get())
+        adding_list_setter(entry_path.get(), True)
 
     master = Tk()
     master.wm_title("Setter Generator")
@@ -78,11 +87,16 @@ def gui():
     mainloop()
 
 
-def adding_list_setter(file_path):
+def adding_list_setter(file_path, tkEnabled=False):
     if len(file_path) == 0:
-        messagebox.showinfo("Error", "Please Enter the valid path")
+        logging.error("Please Enter the valid path")
+        try:
+            if(tkEnabled):
+                messagebox.showinfo("Error", "Please Enter the valid path")
+        except:
+            pass
         return
-    print(file_path)
+    logging.info(file_path)
     if "generated-sources\jax-ws" not in file_path and "generated-sources/jax-ws" not in file_path :
         option = input("You are not in generated sources, possibly sources may change. Do you want to continue (y/n): ")
         if option == "y":
@@ -92,4 +106,7 @@ def adding_list_setter(file_path):
 
 
 if __name__ == "__main__":
-    gui()
+    if(tkInterPresent):
+        gui()
+    else: 
+        cli()
