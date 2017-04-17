@@ -55,16 +55,16 @@ def read_file(file_path):
     global affected_lines
 
     with open(file_path, "r") as in_file:
-        buf = in_file.read()
+        buf = in_file.readlines()
 
     with open(file_path, "w") as out_file:
-        for line in buf.splitlines(keepends=True):
+        for line in buf:
             var_type, var_name = having_list_item(line)
             if var_name:
                 logging.info(file_path)
                 function_in_string = make_setter_function(var_type, var_name)
-                if(function_in_string not in buf):
-                    line = line + "\n" + function_in_string
+                if function_in_string not in buf:
+                    line = line + function_in_string
                     affected_lines = affected_lines + 1
             out_file.write(line)
 
