@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 try:
     from tkinter import *
     from tkinter import messagebox
@@ -54,16 +55,17 @@ def read_file(file_path):
     global affected_lines
 
     with open(file_path, "r") as in_file:
-        buf = in_file.readlines()
+        buf = in_file.read()
 
     with open(file_path, "w") as out_file:
-        for line in buf:
+        for line in buf.splitlines(keepends=True):
             var_type, var_name = having_list_item(line)
             if var_name:
                 logging.info(file_path)
-                affected_lines = affected_lines + 1
                 function_in_string = make_setter_function(var_type, var_name)
-                line = line + "\n" + function_in_string
+                if(function_in_string not in buf):
+                    line = line + "\n" + function_in_string
+                    affected_lines = affected_lines + 1
             out_file.write(line)
 
 
@@ -74,6 +76,7 @@ def generate_setter(file_path):
 
 
 def cli():
+    tkinter_present = False
     adding_list_setter(input("Full File Path:"))
 
 
@@ -116,11 +119,13 @@ def adding_list_setter(file_path, tk_enabled=False):
                 generate_setter(file_path)
     else:
         generate_setter(file_path)
-
-    messagebox.showinfo("Message", "Done. {} lines are affected.".format(affected_lines))
-
-if __name__ == "__main__":
-    if tkinter_present:
+    msg = "Done. {} lines are affected.".format(affected_lines)
+    logging.info(msg)
+    if tk_enabled:
+        messagebox.showinfo("Message", msg)
+    
+if __name__ == "__main__":    
+    if tkinter_present and len(sys.argv) > 1 and "--g" == sys.argv[1]:
         gui()
     else:
         cli()
